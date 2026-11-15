@@ -3,6 +3,7 @@
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 
 uses(RefreshDatabase::class);
 
@@ -93,7 +94,7 @@ test('il logout revoca il token corrente', function () {
 
     $this->assertDatabaseCount('personal_access_tokens', 0);
 
-    auth()->forgetGuards();
+    Auth::forgetGuards();
 
     $this->withToken($token)
         ->getJson('/api/user')
