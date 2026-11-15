@@ -80,6 +80,28 @@ class TicketPolicy
     }
 
     /**
+     * Determine whether the user can assign the model.
+     */
+    public function assign(User $user, Ticket $ticket): bool
+    {
+        if ($user->company_id !== $ticket->company_id) {
+            return false;
+        }
+
+        if ($ticket->status === 'closed') {
+            return false;
+        }
+
+        return match ($user->role) {
+            User::ROLE_ADMIN => true,
+
+            User::ROLE_SUPERVISOR => $ticket->assignee_id === null,
+
+            default => false,
+        };
+    }
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Ticket $ticket): bool
