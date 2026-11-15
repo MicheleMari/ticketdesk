@@ -1,17 +1,19 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TicketAssignmentController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketStatusController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\TicketCommentController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:6,1');
+
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/tickets', [TicketController::class, 'index']);
     Route::post('/tickets', [TicketController::class, 'store']);
