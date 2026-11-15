@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\TicketAssignmentController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketStatusController;
+use App\Http\Controllers\Api\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,4 +19,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/tickets/{ticket}/status', TicketStatusController::class);
     Route::patch('/tickets/{ticket}/assign', TicketAssignmentController::class);
     Route::delete('/tickets/{ticket}', [TicketController::class, 'destroy']);
+
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::get('/categories/{category}', [CategoryController::class, 'show']);
+    Route::patch('/categories/{category}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 });
