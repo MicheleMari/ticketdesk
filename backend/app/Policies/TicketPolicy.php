@@ -70,6 +70,16 @@ class TicketPolicy
     }
 
     /**
+     * Determine whether the user can reopen the model.
+     */
+    public function reopen(User $user, Ticket $ticket): bool
+    {
+        return $user->company_id === $ticket->company_id
+            && $user->role === User::ROLE_ADMIN
+            && $ticket->status === 'closed';
+    }
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Ticket $ticket): bool

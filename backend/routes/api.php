@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\TicketController;
+use App\Http\Controllers\Api\TicketStatusController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,4 +14,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tickets', [TicketController::class, 'store']);
     Route::get('/tickets/{ticket}', [TicketController::class, 'show']);
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update']);
+    Route::patch('/tickets/{ticket}/status', TicketStatusController::class);
 });
