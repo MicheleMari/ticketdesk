@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\TicketAssignmentController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\TicketStatusController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\TicketCommentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,4 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/categories/{category}', [CategoryController::class, 'show']);
     Route::patch('/categories/{category}', [CategoryController::class, 'update']);
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+    Route::get('/tickets/{ticket}/comments', [TicketCommentController::class, 'index']);
+    Route::post('/tickets/{ticket}/comments', [TicketCommentController::class, 'store']);
 });
