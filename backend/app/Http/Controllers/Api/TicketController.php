@@ -105,9 +105,13 @@ class TicketController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Ticket $ticket)
+    public function show(Ticket $ticket): TicketResource
     {
-        //
+        Gate::authorize('view', $ticket);
+
+        $ticket->load(['category', 'assignee']);
+
+        return new TicketResource($ticket);
     }
 
     /**
