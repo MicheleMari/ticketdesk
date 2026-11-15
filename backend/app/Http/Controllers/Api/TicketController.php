@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreTicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Models\Ticket;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -75,9 +77,29 @@ class TicketController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTicketRequest $request): JsonResponse
     {
-        //
+        $user = $request->user();
+
+        $ticket = new Ticket($request->safe()->only([
+            'title',
+            'description',
+            'priority',
+            'due_date',
+        ]));
+
+        $ticket->company_id = $user->company_id;
+        $ticket->creator_id = $user->id;
+        $ticket->category_id = $request->validated('category_id');
+        $ticket->status = 'open';
+
+        $ticket->save();
+
+        $ticket->load(['category', 'assignee']);
+
+        return (new TicketResource($ticket))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
