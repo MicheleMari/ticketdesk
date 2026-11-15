@@ -17,4 +17,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update']);
     Route::patch('/tickets/{ticket}/status', TicketStatusController::class);
     Route::patch('/tickets/{ticket}/assign', TicketAssignmentController::class);
+    Route::delete('/tickets/{ticket}', [TicketController::class, 'destroy']);
 });

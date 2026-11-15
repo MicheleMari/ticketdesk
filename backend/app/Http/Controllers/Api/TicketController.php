@@ -141,8 +141,12 @@ class TicketController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Ticket $ticket)
+    public function destroy(Ticket $ticket): JsonResponse
     {
-        //
+        Gate::authorize('delete', $ticket);
+
+        $ticket->delete();
+
+        return response()->json(null, 204);
     }
 }
