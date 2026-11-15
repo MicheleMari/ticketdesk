@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTicketRequest;
+use App\Http\Requests\UpdateTicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Models\Ticket;
 use App\Models\User;
@@ -117,9 +118,24 @@ class TicketController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Ticket $ticket)
+    public function update(UpdateTicketRequest $request, Ticket $ticket): TicketResource
     {
-        //
+        $ticket->fill($request->safe()->only([
+            'title',
+            'description',
+            'priority',
+            'due_date',
+        ]));
+
+        if ($request->safe()->has('category_id')) {
+            $ticket->category_id = $request->validated('category_id');
+        }
+
+        $ticket->save();
+
+        $ticket->load(['category', 'assignee']);
+
+        return new TicketResource($ticket);
     }
 
     /**
