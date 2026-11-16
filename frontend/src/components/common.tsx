@@ -243,7 +243,7 @@ export function FilterSelect({
       Assegnatario: "Tutti gli utenti",
     }[label] ?? label;
   return (
-    <div className="min-w-0 flex-1 sm:min-w-[150px] sm:flex-none xl:min-w-[185px]">
+    <div className="min-w-0 flex-1 sm:min-w-[150px] sm:flex-none xl:min-w-0">
       <Select
         aria-label={label}
         value={value}

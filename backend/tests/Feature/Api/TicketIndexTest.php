@@ -239,6 +239,114 @@ test('i ticket possono essere ordinati per data di scadenza', function () {
         ->assertJsonPath('data.1.id', $secondTicket->id);
 });
 
+test('l ordinamento predefinito usa la data di creazione decrescente', function () {
+    $company = Company::factory()->create();
+    $admin = User::factory()->create([
+        'company_id' => $company->id,
+        'role' => User::ROLE_ADMIN,
+    ]);
+    $category = Category::factory()->for($company)->create();
+
+    $oldest = Ticket::factory()->forCompany($company, $admin, $category)->create([
+        'created_at' => now()->subDays(3),
+    ]);
+    $newest = Ticket::factory()->forCompany($company, $admin, $category)->create([
+        'created_at' => now()->subDay(),
+    ]);
+
+    $this->actingAs($admin)
+        ->getJson('/api/tickets')
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $newest->id)
+        ->assertJsonPath('data.1.id', $oldest->id);
+});
+
+test('sort due_date usa desc come direzione predefinita', function () {
+    $company = Company::factory()->create();
+    $admin = User::factory()->create([
+        'company_id' => $company->id,
+        'role' => User::ROLE_ADMIN,
+    ]);
+    $category = Category::factory()->for($company)->create();
+
+    $nearest = Ticket::factory()->forCompany($company, $admin, $category)->create([
+        'due_date' => now()->addDays(2),
+    ]);
+    $latest = Ticket::factory()->forCompany($company, $admin, $category)->create([
+        'due_date' => now()->addDays(5),
+    ]);
+
+    $this->actingAs($admin)
+        ->getJson('/api/tickets?sort=due_date')
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $latest->id)
+        ->assertJsonPath('data.1.id', $nearest->id);
+});
+
+test('direction asc usa created_at come sort predefinito', function () {
+    $company = Company::factory()->create();
+    $admin = User::factory()->create([
+        'company_id' => $company->id,
+        'role' => User::ROLE_ADMIN,
+    ]);
+    $category = Category::factory()->for($company)->create();
+
+    $oldest = Ticket::factory()->forCompany($company, $admin, $category)->create([
+        'created_at' => now()->subDays(3),
+    ]);
+    $newest = Ticket::factory()->forCompany($company, $admin, $category)->create([
+        'created_at' => now()->subDay(),
+    ]);
+
+    $this->actingAs($admin)
+        ->getJson('/api/tickets?direction=asc')
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $oldest->id)
+        ->assertJsonPath('data.1.id', $newest->id);
+});
+
+test('la coda di lavoro ordina per priorità e anzianità', function () {
+    $company = Company::factory()->create();
+    $admin = User::factory()->create([
+        'company_id' => $company->id,
+        'role' => User::ROLE_ADMIN,
+    ]);
+    $category = Category::factory()->for($company)->create();
+
+    $mediumOlder = Ticket::factory()->forCompany($company, $admin, $category)->create([
+        'priority' => 'medium',
+        'created_at' => now()->subDays(4),
+    ]);
+    $highNewer = Ticket::factory()->forCompany($company, $admin, $category)->create([
+        'priority' => 'high',
+        'created_at' => now()->subDay(),
+    ]);
+    $highOlder = Ticket::factory()->forCompany($company, $admin, $category)->create([
+        'priority' => 'high',
+        'created_at' => now()->subDays(3),
+    ]);
+
+    $this->actingAs($admin)
+        ->getJson('/api/tickets?sort=work_queue')
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $highOlder->id)
+        ->assertJsonPath('data.1.id', $highNewer->id)
+        ->assertJsonPath('data.2.id', $mediumOlder->id);
+});
+
+test('un sort non consentito restituisce un errore di validazione', function () {
+    $company = Company::factory()->create();
+    $admin = User::factory()->create([
+        'company_id' => $company->id,
+        'role' => User::ROLE_ADMIN,
+    ]);
+
+    $this->actingAs($admin)
+        ->getJson('/api/tickets?sort=invalid')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['sort']);
+});
+
 
 test('i ticket possono essere filtrati per categoria e assegnatario', function () {
     $company = Company::factory()->create();

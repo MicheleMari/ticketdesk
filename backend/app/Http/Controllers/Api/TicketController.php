@@ -28,7 +28,7 @@ class TicketController extends Controller
             'category_id' => ['sometimes', 'integer'],
             'assignee_id' => ['sometimes', 'integer'],
             'q' => ['sometimes', 'string'],
-            'sort' => ['sometimes', Rule::in(['created_at', 'due_date', 'priority'])],
+            'sort' => ['sometimes', Rule::in(['created_at', 'due_date', 'priority', 'work_queue'])],
             'direction' => ['sometimes', Rule::in(['asc', 'desc'])],
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:50'],
             'page' => ['sometimes', 'integer', 'min:1'],
@@ -57,14 +57,18 @@ class TicketController extends Controller
             );
         }
 
-        if (!isset($filters['sort'], $filters['direction'])) {
+        $sort = $filters['sort'] ?? 'created_at';
+        $direction = $filters['direction'] ?? 'desc';
+
+        // The work queue has a fixed priority-first order and ignores direction.
+        if ($sort === 'work_queue') {
             $tickets = $query
                 ->orderByRaw("CASE priority WHEN 'high' THEN 0 WHEN 'medium' THEN 1 WHEN 'low' THEN 2 ELSE 3 END")
                 ->orderBy('created_at', 'asc')
                 ->paginate($filters['per_page'] ?? 10);
         } else {
             $tickets = $query
-                ->orderBy($filters['sort'], $filters['direction'])
+                ->orderBy($sort, $direction)
                 ->paginate($filters['per_page'] ?? 10);
         }
 

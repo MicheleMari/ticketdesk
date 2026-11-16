@@ -60,6 +60,29 @@ export function TicketsPage() {
     setSearch("");
     setSearchParams(new URLSearchParams());
   };
+  const sort = searchParams.get("sort");
+  const direction = searchParams.get("direction");
+  const ordering = sort
+    ? sort === "work_queue"
+      ? "work_queue"
+      : `${sort}:${direction ?? "desc"}`
+    : "default";
+  const setOrdering = (value: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.delete("sort");
+    next.delete("direction");
+    next.delete("page");
+    if (value !== "default") {
+      if (value === "work_queue") {
+        next.set("sort", value);
+      } else {
+        const [nextSort, nextDirection] = value.split(":");
+        next.set("sort", nextSort);
+        next.set("direction", nextDirection);
+      }
+    }
+    setSearchParams(next);
+  };
   return (
     <BlurFade>
       <PageHeader
@@ -76,7 +99,7 @@ export function TicketsPage() {
         }
       />
       <Card>
-        <div className="grid gap-3 border-b border-border p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(240px,1.5fr)_repeat(4,minmax(165px,1fr))_auto]">
+        <div className="grid min-w-0 gap-3 border-b border-border p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[minmax(220px,1.5fr)_repeat(5,minmax(120px,1fr))_auto]">
           <SearchInput
             value={search}
             onChange={setSearch}
@@ -128,6 +151,20 @@ export function TicketsPage() {
               ))}
             </FilterSelect>
           )}
+          <FilterSelect
+            label="Ordinamento"
+            value={ordering}
+            onChange={setOrdering}
+          >
+            <option value="default">Più recenti</option>
+            <option value="created_at:asc">Più vecchi</option>
+            <option value="created_at:desc">Più recenti</option>
+            <option value="due_date:asc">Scadenza più vicina</option>
+            <option value="due_date:desc">Scadenza più lontana</option>
+            <option value="priority:desc">Priorità (desc)</option>
+            <option value="priority:asc">Priorità (asc)</option>
+            <option value="work_queue">Priorità e anzianità</option>
+          </FilterSelect>
           <Button variant="ghost" className="h-9 px-2 text-xs" onClick={reset}>
             <FilterIcon />
             Reset
