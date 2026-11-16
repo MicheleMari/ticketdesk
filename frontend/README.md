@@ -1,6 +1,25 @@
-# React + TypeScript + Vite
+# TicketDesk frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Il frontend React viene compilato per essere servito direttamente da Laravel.
+
+## Sviluppo
+
+```bash
+npm install
+npm run dev
+```
+
+Vite usa il proxy `/api` verso `http://127.0.0.1:8000`; è quindi necessario avere Laravel avviato in un altro terminale.
+
+## Build integrata Laravel
+
+```bash
+npm run build
+```
+
+Il comando esegue il controllo TypeScript e genera gli asset in `../backend/public/ticketdesk/`. La directory è ignorata da Git perché contiene solo file compilati.
+
+Per una build standalone in `frontend/dist/` usare `npm run build:standalone`.
 
 Currently, two official plugins are available:
 
