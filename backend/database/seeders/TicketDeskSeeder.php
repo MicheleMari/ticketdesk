@@ -18,6 +18,7 @@ class TicketDeskSeeder extends Seeder
         $companies = [
             [
                 'name' => 'Adriatica Logistica S.r.l.',
+                'email_domain' => 'azienda1.test',
                 'users' => [
                     ['name' => 'Marco Rossi', 'role' => User::ROLE_ADMIN],
                     ['name' => 'Luca Bianchi', 'role' => User::ROLE_SUPERVISOR],
@@ -26,6 +27,7 @@ class TicketDeskSeeder extends Seeder
             ],
             [
                 'name' => 'Puglia Servizi Digitali S.r.l.',
+                'email_domain' => 'azienda2.test',
                 'users' => [
                     ['name' => 'Andrea Romano', 'role' => User::ROLE_ADMIN],
                     ['name' => 'Francesca Greco', 'role' => User::ROLE_SUPERVISOR],
@@ -74,7 +76,7 @@ class TicketDeskSeeder extends Seeder
             foreach ($companyData['users'] as $userData) {
                 $email = strtolower(
                     str_replace(' ', '.', $userData['name'])
-                ) . '@azienda' . $company->id . '.test';
+                ) . '@' . $companyData['email_domain'];
 
                 $user = User::firstOrNew([
                     'email' => $email,

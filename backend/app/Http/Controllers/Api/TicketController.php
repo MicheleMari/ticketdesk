@@ -57,12 +57,16 @@ class TicketController extends Controller
             );
         }
 
-        $sort = $filters['sort'] ?? 'created_at';
-        $direction = $filters['direction'] ?? 'desc';
-
-        $tickets = $query
-            ->orderBy($sort, $direction)
-            ->paginate($filters['per_page'] ?? 10);
+        if (!isset($filters['sort'], $filters['direction'])) {
+            $tickets = $query
+                ->orderByRaw("CASE priority WHEN 'high' THEN 0 WHEN 'medium' THEN 1 WHEN 'low' THEN 2 ELSE 3 END")
+                ->orderBy('created_at', 'asc')
+                ->paginate($filters['per_page'] ?? 10);
+        } else {
+            $tickets = $query
+                ->orderBy($filters['sort'], $filters['direction'])
+                ->paginate($filters['per_page'] ?? 10);
+        }
 
         return response()->json([
             'data' => TicketResource::collection($tickets->items())->resolve(),
